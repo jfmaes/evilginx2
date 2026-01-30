@@ -4,3 +4,4 @@ private/
 /phishlets
 !/phishlets/example.yaml
 !/phishlets/example-http.yaml
+/evilginx
