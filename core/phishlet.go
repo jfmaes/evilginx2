@@ -827,28 +827,6 @@ func (p *Phishlet) GetLoginUrl() string {
 	return scheme + "://" + p.login.domain + p.login.path
 }
 
-// GetPhishLoginUrl returns the phishing login URL (using phishing domain and http_mode scheme)
-func (p *Phishlet) GetPhishLoginUrl() string {
-	// Use http_mode setting for scheme (client-facing)
-	scheme := "https"
-	if p.cfg.IsPhishletHttpModeEnabled(p.Name) {
-		scheme = "http"
-	}
-	// Find the phishing host that maps to the login domain
-	phishDomain, ok := p.cfg.GetSiteDomain(p.Name)
-	if !ok {
-		return ""
-	}
-	for _, ph := range p.proxyHosts {
-		origHost := combineHost(ph.orig_subdomain, ph.domain)
-		if strings.ToLower(origHost) == strings.ToLower(p.login.domain) {
-			phishHost := combineHost(ph.phish_subdomain, phishDomain)
-			return scheme + "://" + phishHost + p.login.path
-		}
-	}
-	return ""
-}
-
 func (p *Phishlet) GetLandingPhishHost() string {
 	for _, ph := range p.proxyHosts {
 		if ph.is_landing {
