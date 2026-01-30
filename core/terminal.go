@@ -1363,7 +1363,7 @@ func (t *Terminal) checkStatus() {
 func (t *Terminal) manageCertificates(verbose bool) {
 	if !t.p.developer {
 		if t.cfg.IsAutocertEnabled() {
-			hosts := t.p.cfg.GetActiveHostnames("")
+			hosts := t.p.cfg.GetActiveHttpsHostnames("")
 			//wc_host := t.p.cfg.GetWildcardHostname()
 			//hosts := []string{wc_host}
 			//hosts = append(hosts, t.p.cfg.GetActiveHostnames("")...)
