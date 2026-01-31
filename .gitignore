@@ -6,3 +6,4 @@ private/
 !/phishlets/example-http.yaml
 !/phishlets/README.md
 /evilginx
+.claude
