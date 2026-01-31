@@ -811,7 +811,11 @@ func (p *Phishlet) GetOrigSchemeForHost(hostname string) string {
 			return ph.orig_scheme
 		}
 	}
-	return "https" // default
+	// Use http_mode setting as fallback instead of always defaulting to https
+	if p.cfg.IsPhishletHttpModeEnabled(p.Name) {
+		return "http"
+	}
+	return "https"
 }
 
 func (p *Phishlet) GetLoginUrl() string {
