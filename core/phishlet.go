@@ -132,6 +132,7 @@ type Phishlet struct {
 	intercept        []Intercept
 	customParams     map[string]string
 	isTemplate       bool
+	defaultHttpMode  bool // Default HTTP mode from phishlet YAML
 }
 
 type ConfigParam struct {
@@ -223,6 +224,7 @@ type ConfigIntercept struct {
 type ConfigPhishlet struct {
 	Name        string             `mapstructure:"name"`
 	RedirectUrl string             `mapstructure:"redirect_url"`
+	HttpMode    *bool              `mapstructure:"http_mode"` // Enable HTTP mode by default when phishlet is enabled
 	Params      *[]ConfigParam     `mapstructure:"params"`
 	ProxyHosts  *[]ConfigProxyHost `mapstructure:"proxy_hosts"`
 	SubFilters  *[]ConfigSubFilter `mapstructure:"sub_filters"`
@@ -764,6 +766,12 @@ func (p *Phishlet) LoadFromFile(site string, path string, customParams *map[stri
 			p.landing_path[n] = p.paramVal(p.landing_path[n])
 		}
 	}
+
+	// Set default HTTP mode from phishlet YAML
+	if fp.HttpMode != nil && *fp.HttpMode {
+		p.defaultHttpMode = true
+	}
+
 	return nil
 }
 
@@ -829,6 +837,11 @@ func (p *Phishlet) GetLoginUrl() string {
 		}
 	}
 	return scheme + "://" + p.login.domain + p.login.path
+}
+
+// HasDefaultHttpMode returns true if the phishlet YAML specifies http_mode: true
+func (p *Phishlet) HasDefaultHttpMode() bool {
+	return p.defaultHttpMode
 }
 
 func (p *Phishlet) GetLandingPhishHost() string {

@@ -636,6 +636,9 @@ func NewHttpProxy(hostname string, port int, http_port int, cfg *Config, crt_db 
 					req.URL.Scheme = orig_scheme
 				}
 
+				// Update URL host to match the replaced host for correct proxy destination
+				req.URL.Host = req.Host
+
 				// fix origin
 				origin := req.Header.Get("Origin")
 				if origin != "" {

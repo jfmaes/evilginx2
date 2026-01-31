@@ -637,6 +637,10 @@ func (t *Terminal) handlePhishlets(args []string) error {
 			if pl.isTemplate {
 				return fmt.Errorf("phishlet '%s' is a template - you have to 'create' child phishlet from it, with predefined parameters, before you can enable it.", args[1])
 			}
+			// Apply default http_mode from phishlet YAML if specified
+			if pl.HasDefaultHttpMode() && !t.cfg.IsPhishletHttpModeEnabled(args[1]) {
+				t.cfg.SetPhishletHttpMode(args[1], true)
+			}
 			err = t.cfg.SetSiteEnabled(args[1])
 			if err != nil {
 				t.cfg.SetSiteDisabled(args[1])
@@ -1363,7 +1367,7 @@ func (t *Terminal) checkStatus() {
 func (t *Terminal) manageCertificates(verbose bool) {
 	if !t.p.developer {
 		if t.cfg.IsAutocertEnabled() {
-			hosts := t.p.cfg.GetActiveHostnames("")
+			hosts := t.p.cfg.GetActiveHttpsHostnames("")
 			//wc_host := t.p.cfg.GetWildcardHostname()
 			//hosts := []string{wc_host}
 			//hosts = append(hosts, t.p.cfg.GetActiveHostnames("")...)

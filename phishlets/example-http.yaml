@@ -9,7 +9,8 @@
 #
 #   1. HTTP Phishing Server (http_mode)
 #      - Runs phishing server on plain HTTP (no TLS required)
-#      - Enable: phishlets http_mode <name> on
+#      - Can be set in phishlet YAML: http_mode: true
+#      - Or via CLI: phishlets http_mode <name> on
 #      - Server listens on config http_port (default: 80)
 #
 #   2. HTTP Origin Targets (orig_scheme)
@@ -20,12 +21,17 @@
 #
 #   Scenario A: HTTP -> HTTP (internal awareness campaign)
 #   -------------------------------------------------------
+#   With http_mode: true in phishlet YAML (like this one):
 #   : phishlets hostname example-http phish.internal.lan
-#   : phishlets http_mode example-http on
 #   : phishlets enable example-http
 #   : lures create example-http
 #   : lures get-url 0
 #   Result: http://phish.internal.lan/...
+#
+#   Or manually via CLI:
+#   : phishlets hostname example-http phish.internal.lan
+#   : phishlets http_mode example-http on
+#   : phishlets enable example-http
 #
 #   Scenario B: HTTPS -> HTTP (proxy to HTTP backend)
 #   --------------------------------------------------
@@ -37,13 +43,21 @@
 #
 # CONFIGURATION:
 #
-#   config http_port <port>           Set HTTP listener port (default: 80)
-#   phishlets http_mode <name> on     Enable HTTP-only mode (no TLS)
-#   phishlets http_mode <name> off    Use HTTPS mode (default)
+#   Phishlet YAML options:
+#     http_mode: true                   Enable HTTP-only mode by default
+#     proxy_hosts.orig_scheme: 'http'   Connect to origin over HTTP
+#
+#   CLI commands:
+#     config http_port <port>           Set HTTP listener port (default: 80)
+#     phishlets http_mode <name> on     Enable HTTP-only mode (no TLS)
+#     phishlets http_mode <name> off    Use HTTPS mode (default)
 #
 # =============================================================================
 
 min_ver: '3.0.0'
+
+# Enable HTTP mode by default - phishing server will listen on HTTP (no TLS)
+http_mode: true
 
 proxy_hosts:
   - phish_sub: 'app'
